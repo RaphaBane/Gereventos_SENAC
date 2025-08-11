@@ -1,0 +1,240 @@
+{% extends 'eventos/base.html' %}
+{% block title %}Lista de Eventos{% endblock %}
+
+{% block content %}
+<!-- CONTEÚDO -->
+    <main>
+      <section class="py-5 text-center container">
+        <div class="row py-lg-5">
+          <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Lista de Eventos</h1>
+            <p class="lead text-body-secondary">
+                Página destinada à visualização, criação e edição de eventos.
+                Caso haja eventos cadastrados, eles estarão visíveis para todos os usuários, permitindo que participantes possam se inscrever e organizadores tenham a possibilidade de editar ou excluir seus eventos.</p>
+          </div>
+        </div>
+      </section>
+      <div class="album py-5 bg-body-tertiary">
+        <h1 class="text-center mb-0">Eventos Disponíveis</h1>
+
+        <div class="container d-flex justify-content-between align-items-center mt-4 mb-4">
+            <form method="get" id="formBusca" class="flex-grow-1 me-3">
+                <div class="input-group">
+                    <input type="text" name="q" id="inputBusca" class="form-control" placeholder="Buscar eventos..." value="{{ query }}">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel-fill"></i> Filtros
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-3">
+                            <li>
+                                <label for="data_inicio" class="form-label">Data Mínima:</label>
+                                <input type="date" name="data_inicio" id="data_inicio" class="form-control mb-2" value="{{ data_inicio }}">
+                            </li>
+                            <li>
+                                <label for="data_fim" class="form-label">Data Máxima:</label>
+                                <input type="date" name="data_fim" id="data_fim" class="form-control mb-2" value="{{ data_fim }}">
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button type="submit" class="btn btn-primary w-100 mt-2">Aplicar Filtros</button>
+                                <a href="{% url 'evento-list' %}" class="btn btn-secondary w-100 mt-2">Limpar Filtros</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+
+            {% if is_organizador %}
+                <a href="{% url 'evento-create' %}" class="btn btn-primary">Novo Evento</a>
+            {% endif %}
+        </div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="w-50 mx-auto alert alert-{%if 'error' in message.tags %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="container">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for evento in eventos %}
+            <div class="col">
+              <div class="card h-100 shadow-sm overflow-hidden">
+                {% if evento.imagem_banner %}
+                  <img src="{{ evento.imagem_banner.url }}" alt="{{ evento.titulo }}" class="bd-placeholder-img card-img-top" height="225" width="100%">
+                {% else %}
+                <svg aria-label="Placeholder: Thumbnail" class="bd-placeholder-img card-img-top" height="225" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg">
+                  <title>Placeholder do Banner</title>
+                  <rect width="100%" height="100%" fill="#55595c"></rect>
+                  <text x="50%" y="50%" fill="#eceeef" dy=".3em">Banner</text>
+                </svg>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                  <h5 class="text-center">{{ evento.titulo }}</h5>
+                  <p class="card-text text-muted flex-grow-1" >{{ evento.descricao }}</p>
+
+                  <div class="small text-secondary mb-3">
+                    <small class="text-body-secondary d-block">📅 Data: {{ evento.data }}</small>
+                    <small class="text-body-secondary d-block">📍 Local: {{ evento.local }}</small>
+                    <small class="text-body-secondary d-block">👥 Capacidade Máxima: {{ evento.capacidade_max }}</small>
+                    <small class="text-body-secondary d-block">🎟️ Vagas restantes: {{ evento.vagas_restantes }}</small>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      {% if is_organizador and evento.is_owner %}
+                      <a href="{% url 'evento-update' evento.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                      <button type="button" class="btn btn-sm btn-outline-danger"
+                              data-bs-toggle="modal" data-bs-target="#modalExcluir"
+                              data-id="{{ evento.pk }}"
+                              data-titulo="{{ evento.titulo }}">
+                        Excluir
+                      </button>
+                      {% else %}
+                        {% if is_organizador %}
+                            {% elif evento.is_inscrito %}
+                              <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal" data-bs-target="#modalDesinscrever"
+                                    data-id="{{ evento.inscricao_id }}"
+                                    data-titulo="{{ evento.titulo }}">
+                              Desinscrever
+                              </button>
+                            {% else %}
+                              <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-bs-toggle="modal" data-bs-target="#modalInscricao"
+                                    data-id="{{ evento.pk }}"
+                                    data-titulo="{{ evento.titulo }}">
+                              Inscrever-se
+                              </button>
+                            {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% if not eventos %}
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <p class="text-muted">Nenhum evento disponível ou correspondente.</p>
+                </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+<!-- MODAL DE INSCRIÇÃO -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modalInscricao" aria-labelledby="modalInscricaoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header p-5 pb-4 border-bottom-0">
+        <h1 class="fw-bold mb-0 fs-2 text-center" id="modalInscricaoLabel"></h1>
+      </div>
+      <div class="modal-body p-5 pt-0">
+        <form class="" enctype="multipart/form-data" id="formInscrever" method="post">
+          {% csrf_token %}
+          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Enviar Inscrição</button>
+          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DESINSCRIÇÃO -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modalDesinscrever" aria-labelledby="modalDesinscreverLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-3 shadow">
+      <form method="post" id="formDesinscrever">
+        {% csrf_token %}
+        <div class="modal-body p-4 text-center">
+          <h5 class="mb-0" id="modalDesinscreverLabel">Confirmar cancelamento</h5>
+          <p class="mb-0">Tem certeza que deseja cancelar sua inscrição no evento: <strong id="eventoDesinscreverTitulo"></strong></p>
+        </div>
+        <div class="modal-footer flex-nowrap p-0">
+          <button type="submit" class="btn btn-lg btn-link fs-6 text-decoration-none text-danger col-6 py-3 m-0 rounded-0 border-end">
+            <strong>Sim</strong>
+          </button>
+          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">
+            Não
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE EXCLUSÃO DE EVENTOS -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluir" aria-labelledby="modalExcluirLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-3 shadow">
+      <form method="post" id="formExclusao">
+        {% csrf_token %}
+        <div class="modal-body p-4 text-center">
+          <h5 class="mb-0" id="modalExcluirLabel">Confirmar exclusão</h5>
+          <p class="mb-0">Tem certeza que deseja excluir o evento: <strong id="eventoTitulo"></strong></p>
+        </div>
+        <div class="modal-footer flex-nowrap p-0">
+          <button type="submit" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end">
+            <strong>Sim</strong>
+          </button>
+          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">
+            Não
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Nota: Modal de Exclusão de Eventos
+    const modalExcluir = document.getElementById('modalExcluir');
+    const eventoTitulo = document.getElementById('eventoTitulo');
+    const formExclusao = document.getElementById('formExclusao');
+
+    modalExcluir.addEventListener('shown.bs.modal', function(event) {
+        const botaoExcluir = event.relatedTarget;
+        const eventoId = botaoExcluir.getAttribute('data-id');
+        const titulo = botaoExcluir.getAttribute('data-titulo');
+
+        eventoTitulo.textContent = titulo;
+        formExclusao.action = `/eventos/${eventoId}/excluir/`;
+    });
+
+    // Nota: Modal de Inscrição de Eventos
+    const modalInscricao = document.getElementById('modalInscricao');
+    const eventoInscricaoTitulo = document.getElementById('modalInscricaoLabel');
+    const formInscrever = document.getElementById('formInscrever');
+
+    modalInscricao.addEventListener('shown.bs.modal', function(event) {
+        const botaoInscricao = event.relatedTarget;
+        const eventoId = botaoInscricao.getAttribute('data-id');
+        const titulo = botaoInscricao.getAttribute('data-titulo');
+
+        eventoInscricaoTitulo.textContent = `Inscrever-se para ${titulo}?`;
+        formInscrever.action = `/inscrever/${eventoId}/`;
+    });
+
+    // Nota: Modal de Desinscrever Participante
+    const modalDesinscrever = document.getElementById('modalDesinscrever');
+    const eventoDesinscreverTitulo = document.getElementById('eventoDesinscreverTitulo');
+    const formDesinscrever = document.getElementById('formDesinscrever');
+
+    modalDesinscrever.addEventListener('shown.bs.modal', function(event) {
+        const botaoDesinscrever = event.relatedTarget;
+        const inscricaoId = botaoDesinscrever.getAttribute('data-id');
+        const titulo = botaoDesinscrever.getAttribute('data-titulo');
+
+        eventoDesinscreverTitulo.textContent = titulo;
+        formDesinscrever.action = `/desinscrever/${inscricaoId}/`;
+    });
+
+</script>
+{% endblock %}

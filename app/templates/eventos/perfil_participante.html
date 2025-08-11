@@ -1,0 +1,117 @@
+{% extends 'eventos/base.html' %}
+{% block content %}
+
+<div class="container">
+  <main>
+    <div class="py-5 text-center">
+      <h1 class="h2">Perfil do Participante</h1>
+      <p class="lead">Abaixo você poderá acessar e editar suas informações de usuário, além de possuir a possibilidade da exclusão do mesmo.</p>
+    </div>
+    <div class="row g-5">
+      <div class="col-md-5 col-lg-4 order-md-last">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-primary">Suas Inscrições</span>
+          <span class="badge bg-primary rounded-pill">{{ total_inscricoes }}</span>
+        </h4>
+        <ul class="list-group mb-3">
+          {% for inscricao in inscricoes %}
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">{{ inscricao.evento.titulo }}</h6>
+              <span class="text-body-secondary">{{ inscricao.evento.local }}</span>
+            </div>
+            <div class="d-flex flex-column text-end">
+              <small class="text-body-secondary">{{ inscricao.evento.data|date:"d/m/Y" }}</small>
+              <small class="text-body-secondary">{{ inscricao.evento.data|date:"H:i" }}</small>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-md-7 col-lg-8">
+        <h4 class="mb-3">Informações do Participante</h4>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-control" value="{{ participante.nome }}" aria-label="Disabled input example" disabled/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Telefone</label>
+              <input type="text" class="form-control" value="{{ participante.telefone }}" aria-label="Disabled input example" disabled/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Gênero</label>
+              <input type="text" class="form-control" value="{{ participante.genero }}" aria-label="Disabled input example" disabled/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Cidade</label>
+              <input type="text" class="form-control" value="{{ participante.cidade }}" aria-label="Disabled input example" disabled/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">CPF</label>
+              <input type="text" class="form-control" value="{{ participante.cpf }}" aria-label="Disabled input example" disabled/>
+            </div>
+            <a href="{% url 'perfil-participante-update' participante.pk %}" class="w-100 btn btn-primary mt-5" type="submit">Editar Informações Pessoais</a>
+          <hr class="my-4"/>
+          <h4>Informações do Usuário</h4>
+          <div class="col-12">
+              <label class="form-label">Usuário</label>
+              <input type="text" class="form-control" value="{{ participante.user.username }}" aria-label="Disabled input example" disabled/>
+          </div>
+          <div class="col-12">
+              <label class="form-label">E-mail</label>
+              <input type="text" class="form-control" value="{{ participante.user.email }}" aria-label="Disabled input example" disabled/>
+          </div>
+          <div class="col-12">
+              <label class="form-label">Senha</label>
+              <input type="text" class="form-control" value="************" aria-label="Disabled input example" disabled/>
+          </div>
+          <a href="{% url 'perfil-usuario-update' user.pk %}" class="w-100 btn btn-primary mt-5" type="submit">Editar Informações de Usuário</a>
+          <hr class="my-4"/>
+          <button class="w-100 mb-4 btn btn-primary btn-danger" type="submit"
+          data-bs-toggle="modal" data-bs-target="#modalExcluir"
+          data-id="{{ participante.pk }}" data-nome="{{ participante.nome }}">Excluir conta</button>
+          </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluir" aria-labelledby="modalExcluirLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-3 shadow">
+      <form method="post" id="formExclusao">
+        {% csrf_token %}
+        <div class="modal-body p-4 text-center">
+          <h5 class="mb-0" id="modalExcluirLabel">Confirmar exclusão</h5>
+          <p class="mb-0">Tem certeza que deseja excluir o perfil: <strong id="participanteNome"></strong></p>
+        </div>
+        <div class="modal-footer flex-nowrap p-0">
+          <button type="submit" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end">
+            <strong>Sim</strong>
+          </button>
+          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">
+            Não
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// modalExcluir
+    const modalExcluir = document.getElementById('modalExcluir');
+    const participanteNome = document.getElementById('participanteNome');
+    const formExclusao = document.getElementById('formExclusao');
+
+    modalExcluir.addEventListener('shown.bs.modal', function(event) {
+        const botaoExcluir = event.relatedTarget;
+        const participanteId = botaoExcluir.getAttribute('data-id');
+        const nome = botaoExcluir.getAttribute('data-nome');
+
+        participanteNome.textContent = nome;
+        formExclusao.action = `/perfil/participante/${participanteId}/excluir/`;
+    });
+</script>
+{% endblock %}

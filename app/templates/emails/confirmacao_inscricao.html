@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 640px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #2E7D32;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .banner {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .content {
+            padding: 30px 25px;
+            color: #333333;
+            line-height: 1.7;
+        }
+        .content p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .event-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-left: 4px solid #2E7D32;
+            border-radius: 6px;
+            margin-top: 25px;
+        }
+        .event-info h3 {
+            margin-top: 0;
+            color: #2E7D32;
+            font-size: 18px;
+        }
+        .event-info p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #2E7D32;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        .footer {
+            background-color: #eeeeee;
+            color: #666666;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if evento.imagem_banner %}
+            <img class="banner" src="{{ evento.imagem_banner.url }}" alt="Banner do Evento">
+        {% endif %}
+
+        <div class="header">
+            <h1>Inscrição Confirmada!</h1>
+        </div>
+
+        <div class="content">
+            <p>Olá {{ participante.nome }},</p>
+            <p>Temos o prazer de confirmar sua inscrição no evento <strong>{{ evento.titulo }}</strong>.</p>
+            <p>Estamos ansiosos para recebê-lo e proporcionar uma experiência memorável.</p>
+
+            <div class="event-info">
+                <h3>📅 Detalhes do Evento</h3>
+                <p><strong>Evento:</strong> {{ evento.titulo }}</p>
+                <p><strong>Local:</strong> {{ evento.local }}</p>
+                <p><strong>Data:</strong> {{ evento.data|date:"d/m/Y H:i" }}</p>
+            </div>
+
+            <p style="margin-top: 30px;">Se tiver qualquer dúvida, estamos à disposição.</p>
+            <p>Atenciosamente,<br><strong>Equipe de Eventos</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; {% now "Y" %} gereventossenac@gmail.com — Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
