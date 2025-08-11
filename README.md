@@ -115,28 +115,33 @@ Como outros desenvolvedores podem instalar seu projeto para rodar localmente?
 1. Clone o repositório:
    ```bash
    git clone https://github.com/RaphaBane/Gereventos_SENAC.git
-   
+   ```   
+
 2. Crie e ative um ambiente virtual:
 
    ```bash
    python -m venv venv
    venv\Scripts\activate # no Windows 
    source venv/bin/activate  # bi Linux
-   
+   ```   
+
 3. Instale as dependências:
    ```bash
    pip install -r requirements.txt
+   ```
    
 4. Configure o `.env` com suas credenciais.
 5. Rode as migrações:
 
    ```bash
    python manage.py migrate
-   
+   ```  
+ 
 6. Inicie o servidor:
 
    ```bash
    python manage.py runserver
+   ```
 
 7. Acesse: http://localhost:8000
 
@@ -144,3 +149,36 @@ Como outros desenvolvedores podem instalar seu projeto para rodar localmente?
 - Adição de mais cobertura para os testes
 - Melhoria na parte visual (HTML)
 - Adição de uma API de consulta de eventos e participantes.
+
+## 🧪 Testes e Cobertura
+Este projeto utiliza `pytest` com `pytest-django` e `coverage` para testes automatizados.
+
+### ▶️ Executar testes localmente
+
+No terminal:
+
+   ```bash
+   pytest
+   ```
+
+Com cobertura de código:
+
+   ```bash
+   pytest --cov=. --cov-report=term-missing --cov-report=html
+   ```
+
+Abrir relatório HTML:
+
+   ```bash
+   start htmlcov/index.html  # Windows
+   # ou
+   xdg-open htmlcov/index.html  # Linux
+   ```
+
+### ▶️ Script automatizado (Windows)
+
+Execute com duplo clique ou no terminal:
+
+   ```bash
+   run_tests.bat
+   ```
